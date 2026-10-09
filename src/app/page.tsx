@@ -6,13 +6,14 @@ import Footer from "@/components/shared/Footer";
 import Link from "next/link";
 import { fetchApi } from "@/lib/api";
 import { BloodRequest } from "@/types";
-import { Search, PhoneCall, Droplets, MapPin, HeartPulse, ShieldCheck, Users } from "lucide-react";
 
 export default function HomePage() {
   const [selectedGroup, setSelectedGroup] = useState("");
   const [requests, setRequests] = useState<BloodRequest[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     fetchApi<{ data: BloodRequest[] }>("/requests?page=1&limit=4&status=PENDING")
       .then((res) => {
         if (res && res.data && Array.isArray(res.data)) {
@@ -27,13 +28,14 @@ export default function HomePage() {
   const bloodGroups = ["A_POSITIVE", "A_NEGATIVE", "B_POSITIVE", "B_NEGATIVE", "O_POSITIVE", "O_NEGATIVE", "AB_POSITIVE", "AB_NEGATIVE"];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
       <Navbar />
 
-      <section className="relative bg-gradient-to-br from-rose-900 via-rose-800 to-slate-900 text-white py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 bg-rose-500/20 border border-rose-400/30 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase text-rose-200">
-            <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+      {/* হিরো সেকশন */}
+      <section className="relative bg-gradient-to-br from-rose-950 via-rose-850 to-slate-950 text-white py-20 px-4 text-center">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="inline-flex items-center gap-2 bg-rose-500/20 border border-rose-400/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-rose-300">
+            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
             Bangladesh Central Emergency Blood Network
           </div>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
@@ -45,12 +47,11 @@ export default function HomePage() {
           </p>
 
           <div className="max-w-3xl mx-auto bg-white p-4 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-3 text-slate-800 border">
-            <div className="flex-1 flex items-center gap-2 border rounded-xl px-3 bg-slate-50">
-              <Droplets className="text-rose-600 w-5 h-5 shrink-0" />
+            <div className="flex-1 border rounded-xl px-3 bg-slate-50 flex items-center">
               <select
                 value={selectedGroup}
                 onChange={(e) => setSelectedGroup(e.target.value)}
-                className="w-full bg-transparent py-2.5 outline-none text-sm font-medium"
+                className="w-full bg-transparent py-3 outline-none text-sm font-semibold text-slate-700"
               >
                 <option value="">Select Blood Group</option>
                 {bloodGroups.map((group) => (
@@ -60,45 +61,46 @@ export default function HomePage() {
                 ))}
               </select>
             </div>
-            <div className="flex-1 flex items-center gap-2 border rounded-xl px-3 bg-slate-50">
-              <MapPin className="text-rose-600 w-5 h-5 shrink-0" />
+            <div className="flex-1 border rounded-xl px-3 bg-slate-50 flex items-center">
               <input
                 type="text"
                 placeholder="District or Hospital Area"
-                className="w-full bg-transparent py-2.5 outline-none text-sm font-medium"
+                className="w-full bg-transparent py-3 outline-none text-sm font-medium text-slate-700"
               />
             </div>
             <Link
               href={selectedGroup ? "/requests?bloodGroup=" + selectedGroup : "/requests"}
-              className="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 transition"
+              className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 py-3 rounded-xl flex items-center justify-center transition shadow-md"
             >
-              <Search className="w-4 h-4" /> Find Donors
+              Find Donors
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="border-y bg-white py-8">
+      {/* জাতীয় পরিসংখ্যান মেট্রিক্স */}
+      <section className="border-y bg-white py-8 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="space-y-1">
             <p className="text-3xl font-extrabold text-rose-600">12,450+</p>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Active Donors</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Active Donors</p>
           </div>
           <div className="space-y-1">
             <p className="text-3xl font-extrabold text-slate-900">8,920+</p>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Patients Assisted</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Patients Assisted</p>
           </div>
           <div className="space-y-1">
             <p className="text-3xl font-extrabold text-rose-600">64</p>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Districts Covered</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Districts Covered</p>
           </div>
           <div className="space-y-1">
             <p className="text-3xl font-extrabold text-slate-900">100%</p>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Verified Safe</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Verified Safe</p>
           </div>
         </div>
       </section>
 
+      {/* জরুরি রক্তের রিকোয়েস্ট ফিড */}
       <section className="max-w-7xl mx-auto px-4 py-16 w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
@@ -106,7 +108,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-black text-slate-900 mt-1">Immediate Blood Requests</h2>
           </div>
           <Link href="/requests" className="text-sm font-bold text-rose-600 hover:underline">
-            View All Open Requests
+            View All Open Requests &rarr;
           </Link>
         </div>
 
@@ -124,30 +126,29 @@ export default function HomePage() {
                     </span>
                   </div>
                   <h3 className="font-bold text-slate-900 leading-snug">{r.hospitalName}</h3>
-                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 shrink-0" /> {r.hospitalAddress}
-                  </p>
+                  <p className="text-xs text-slate-500 mt-1">{r.hospitalAddress}</p>
                 </div>
 
                 <div className="mt-6 pt-4 border-t flex items-center justify-between">
                   <span className="text-xs font-semibold text-slate-600">Needed: {r.unitsNeeded} Bag(s)</span>
                   <a
                     href={"tel:" + (r.contactNumber || "01700000000")}
-                    className="bg-slate-900 hover:bg-slate-800 text-white p-2 rounded-lg transition"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
                   >
-                    <PhoneCall className="w-4 h-4" />
+                    Direct Call
                   </a>
                 </div>
               </div>
             ))
           ) : (
             <div className="col-span-full py-12 text-center bg-white border rounded-2xl">
-              <p className="text-slate-500 font-medium text-sm">Loading verified emergency requests or network synced...</p>
+              <p className="text-slate-500 font-medium text-sm">Synchronizing with live national emergency registry...</p>
             </div>
           )}
         </div>
       </section>
 
+      {/* কম্প্যাটিবিলিটি প্রোটোকল */}
       <section className="bg-slate-100 py-16 border-y">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-10">

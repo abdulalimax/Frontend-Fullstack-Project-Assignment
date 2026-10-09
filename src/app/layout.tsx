@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Blood Donation & Emergency Platform",
-  description: "A centralized platform connecting donors, recipients, and admins.",
+  title: "BloodPulse | Central Emergency Blood Donation Network",
+  description: "Humanitarian blood donation and emergency registry platform.",
 };
 
 export default function RootLayout({
@@ -17,9 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="antialiased min-h-screen bg-slate-50 text-slate-900 font-sans">
         {children}
-        <Toaster richColors position="top-right" />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
