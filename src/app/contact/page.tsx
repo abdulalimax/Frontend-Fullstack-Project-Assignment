@@ -3,22 +3,41 @@ import Footer from "@/components/shared/Footer";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
       <Navbar />
-      <main className="flex-1 max-w-2xl mx-auto px-4 py-16 w-full">
-        <h1 className="text-3xl font-bold text-slate-900">Contact Emergency Desk</h1>
-        <form className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Full Name</label>
-            <input type="text" className="mt-1 w-full p-2 border rounded-md" />
+
+      <main className="flex-1 max-w-5xl mx-auto px-4 py-16 w-full space-y-10">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-rose-600">24/7 Operations</span>
+          <h1 className="text-4xl font-black text-slate-950 mt-1">Support & Emergency Dispatch</h1>
+          <p className="text-slate-600 text-sm mt-2">Get in touch with regional logistics officers or report emergency requirements.</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm space-y-4">
+            <h2 className="text-xl font-bold text-slate-950">Direct Emergency Lines</h2>
+            <div className="space-y-3 text-sm text-slate-600">
+              <p>National Trauma Helpline: <strong>+880 1700-000000</strong></p>
+              <p>Logistics Control Desk: <strong>+880 1800-000000</strong></p>
+              <p>Email: <strong>dispatch@bloodpulse.org</strong></p>
+              <p>Headquarters: <strong>Dhaka Medical Logistics Hub, Bangladesh</strong></p>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Message</label>
-            <textarea rows={4} className="mt-1 w-full p-2 border rounded-md"></textarea>
+
+          <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm space-y-4">
+            <h2 className="text-xl font-bold text-slate-950">Submit an Inquiry</h2>
+            <form className="space-y-3 text-sm">
+              <input type="text" placeholder="Full Name" className="w-full border border-slate-200 rounded-xl p-3 outline-none" />
+              <input type="email" placeholder="Official Email Address" className="w-full border border-slate-200 rounded-xl p-3 outline-none" />
+              <textarea placeholder="Message / Hospital Affiliation" rows={3} className="w-full border border-slate-200 rounded-xl p-3 outline-none"></textarea>
+              <button type="button" className="w-full bg-slate-950 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition">
+                Send Notification
+              </button>
+            </form>
           </div>
-          <button type="button" className="bg-rose-600 text-white px-4 py-2 rounded-md font-medium">Send Message</button>
-        </form>
+        </div>
       </main>
+
       <Footer />
     </div>
   );

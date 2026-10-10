@@ -1,7 +1,21 @@
 ﻿const fs = require("fs");
+const path = require("path");
 
-// ১. প্রিমিয়াম গ্লোবাল হেডার / নেভবার
-const navbarCode = `"use client";
+const ensureDir = (filePath) => {
+  const dirname = path.dirname(filePath);
+  if (!fs.existsSync(dirname)) {
+    fs.mkdirSync(dirname, { recursive: true });
+  }
+};
+
+const writeFile = (relPath, content) => {
+  ensureDir(relPath);
+  fs.writeFileSync(relPath, content, "utf8");
+  console.log("Updated: " + relPath);
+};
+
+// 1. NAVBAR
+const navbar = `"use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -38,12 +52,12 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
           <div className="flex items-center gap-2 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-200">National Emergency Blood Dispatch & Logistics Network</span>
+            <span className="text-slate-200">National Clinical Blood Registry & Emergency Logistics Network</span>
           </div>
-          <div className="flex items-center gap-4 text-xs">
-            <span className="text-rose-400 font-semibold">Emergency Hotline: +880 1700-000000</span>
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <span className="text-rose-400">Emergency Dispatch: +880 1700-000000</span>
             <span className="text-slate-600">|</span>
-            <Link href="/requests" className="text-slate-300 hover:text-white transition font-medium">
+            <Link href="/requests" className="text-slate-300 hover:text-white transition">
               Live Patient Queue &rarr;
             </Link>
           </div>
@@ -61,7 +75,7 @@ export default function Navbar() {
                 BloodPulse<span className="text-rose-600">Hub</span>
               </div>
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">
-                Centralized Blood Transfusion Registry
+                Centralized Blood Transfusion Infrastructure
               </p>
             </div>
           </Link>
@@ -85,7 +99,7 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2.5 rounded-xl transition"
+                  className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 px-4 py-2.5 rounded-xl transition"
                 >
                   Sign Out
                 </button>
@@ -114,8 +128,57 @@ export default function Navbar() {
 }
 `;
 
-// ২. হোমপেজ: সিলিকন ভ্যালি / এন্টারপ্রাইজ হেলথকেয়ার স্ট্যান্ডার্ড
-const homeCode = `"use client";
+// 2. FOOTER
+const footer = `import Link from "next/link";
+
+export default function Footer() {
+  return (
+    <footer className="border-t border-slate-200 bg-white text-slate-600 py-12 text-sm mt-auto">
+      <div className="max-w-7xl mx-auto px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="space-y-3">
+          <div className="text-lg font-black text-slate-950">BloodPulse<span className="text-rose-600">Hub</span></div>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Centralized clinical registry facilitating rapid, verified blood transfusion logistics and trauma network management across Bangladesh.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Navigation</div>
+          <ul className="space-y-1 text-xs">
+            <li><Link href="/" className="hover:text-rose-600">Overview</Link></li>
+            <li><Link href="/requests" className="hover:text-rose-600">Emergency Requests</Link></li>
+            <li><Link href="/services" className="hover:text-rose-600">Hospital Network</Link></li>
+            <li><Link href="/about" className="hover:text-rose-600">Clinical Standards</Link></li>
+          </ul>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Clinical Portals</div>
+          <ul className="space-y-1 text-xs">
+            <li><Link href="/login" className="hover:text-rose-600">Hospital Staff Login</Link></li>
+            <li><Link href="/register" className="hover:text-rose-600">Donor Registration</Link></li>
+            <li><Link href="/recipient" className="hover:text-rose-600">Patient Emergency Post</Link></li>
+            <li><Link href="/contact" className="hover:text-rose-600">Emergency Dispatch Desk</Link></li>
+          </ul>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Emergency Operations</div>
+          <p className="text-xs text-slate-500">24/7 National Dispatch Coordination Center</p>
+          <p className="text-sm font-bold text-rose-600">+880 1700-000000</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 border-t border-slate-100 mt-8 pt-6 text-center text-xs text-slate-400">
+        &copy; 2026 BloodPulse National Transfusion Logistics Network. All rights reserved.
+      </div>
+    </footer>
+  );
+}
+`;
+
+// 3. HOME PAGE
+const home = `"use client";
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/shared/Navbar";
@@ -128,6 +191,12 @@ export default function HomePage() {
   const [selectedGroup, setSelectedGroup] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [requests, setRequests] = useState<BloodRequest[]>([]);
+  
+  const [calcGroup, setCalcGroup] = useState("O_POSITIVE");
+  const [weight, setWeight] = useState(55);
+  const [lastDonationMonths, setLastDonationMonths] = useState(4);
+  const [eligibilityResult, setEligibilityResult] = useState<string | null>(null);
+
   const [activeGroupMatrix, setActiveGroupMatrix] = useState("O_POSITIVE");
 
   useEffect(() => {
@@ -159,14 +228,14 @@ export default function HomePage() {
   ];
 
   const divisionStats = [
-    { name: "Dhaka Central", donors: "5,420 Active", units: "920 Units", status: "Optimal" },
-    { name: "Chattogram Coast", donors: "2,840 Active", units: "410 Units", status: "Optimal" },
-    { name: "Rajshahi North", donors: "1,750 Active", units: "280 Units", status: "Critical A+" },
-    { name: "Khulna Delta", donors: "1,420 Active", units: "210 Units", status: "Optimal" },
-    { name: "Barishal Coastal", donors: "960 Active", units: "140 Units", status: "Critical O-" },
-    { name: "Sylhet Highlands", donors: "1,120 Active", units: "190 Units", status: "Optimal" },
-    { name: "Rangpur North", donors: "1,280 Active", units: "210 Units", status: "Optimal" },
-    { name: "Mymensingh Central", donors: "1,390 Active", units: "240 Units", status: "Optimal" },
+    { name: "Dhaka Central", donors: "5,420 Active", units: "920 Units", hot: "+880 1700-112233" },
+    { name: "Chattogram Coast", donors: "2,840 Active", units: "410 Units", hot: "+880 1800-112233" },
+    { name: "Rajshahi North", donors: "1,750 Active", units: "280 Units", hot: "+880 1750-112233" },
+    { name: "Khulna Delta", donors: "1,420 Active", units: "210 Units", hot: "+880 1900-112233" },
+    { name: "Barishal Coastal", donors: "960 Active", units: "140 Units", hot: "+880 1720-112233" },
+    { name: "Sylhet Highlands", donors: "1,120 Active", units: "190 Units", hot: "+880 1600-112233" },
+    { name: "Rangpur North", donors: "1,280 Active", units: "210 Units", hot: "+880 1730-112233" },
+    { name: "Mymensingh Central", donors: "1,390 Active", units: "240 Units", hot: "+880 1950-112233" },
   ];
 
   const compatibilityMap: Record<string, { canDonateTo: string[]; canReceiveFrom: string[]; tag: string }> = {
@@ -212,11 +281,22 @@ export default function HomePage() {
     }
   };
 
+  const handleCheckEligibility = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (weight < 50) {
+      setEligibilityResult("Ineligible: Clinical guidelines require a minimum donor weight of 50 kg.");
+    } else if (lastDonationMonths < 3) {
+      setEligibilityResult("Waiting Period Active: A standard 90-day recovery interval is required between donations.");
+    } else {
+      setEligibilityResult("Eligible: You meet baseline physical prerequisites to donate blood safely today.");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-rose-600 selection:text-white">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* 1. HERO SECTION */}
       <section className="border-b border-slate-200 bg-white py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
@@ -228,8 +308,8 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-4xl sm:text-6xl font-black text-slate-950 tracking-tight leading-[1.1]">
-                Real-Time Blood Supply <br />
-                <span className="text-rose-600">Infrastructure for Emergency Care.</span>
+                Every Drop Counts. <br />
+                <span className="text-rose-600">Save Lives in Critical Emergencies.</span>
               </h1>
 
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
@@ -265,7 +345,7 @@ export default function HomePage() {
                   </select>
 
                   <Link
-                    href={selectedGroup ? `/requests?bloodGroup=${selectedGroup}` : "/requests"}
+                    href={selectedGroup ? "/requests?bloodGroup=" + selectedGroup : "/requests"}
                     className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl p-3 text-sm flex items-center justify-center transition shadow-sm"
                   >
                     Query Matching Donors
@@ -322,7 +402,7 @@ export default function HomePage() {
 
               <div className="border-t border-slate-800 pt-4 flex items-center justify-between text-xs text-slate-400">
                 <span>Central Logistics Server: Verified</span>
-                <span className="text-rose-400 font-bold">Active Priority: O-, B-</span>
+                <span className="text-rose-400 font-bold">Priority: O-, B-</span>
               </div>
             </div>
 
@@ -330,7 +410,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Live Hospital Emergency Queue */}
+      {/* 2. LIVE HOSPITAL EMERGENCY QUEUE */}
       <section className="py-20 max-w-7xl mx-auto px-4 w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
           <div>
@@ -379,7 +459,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Clinical Compatibility Matrix */}
+      {/* 3. INTERACTIVE CLINICAL COMPATIBILITY SIMULATOR */}
       <section className="bg-white border-y border-slate-200 py-20">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           <div className="text-center space-y-2">
@@ -432,33 +512,106 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8 Divisional Command Centers */}
-      <section className="py-20 max-w-7xl mx-auto px-4 w-full">
-        <div className="text-center mb-12 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Regional Coverage</span>
-          <h2 className="text-3xl font-black text-slate-950">8 Divisional Command Centers</h2>
-          <p className="text-slate-500 text-sm">Real-time volunteer and stock readiness across all national divisions</p>
-        </div>
+      {/* 4. DONOR ELIGIBILITY HEALTH CHECKER */}
+      <section className="max-w-4xl mx-auto px-4 py-20 w-full">
+        <div className="bg-white border border-slate-200 p-8 sm:p-12 rounded-3xl shadow-sm space-y-6">
+          <div className="text-center space-y-2">
+            <span className="text-rose-600 text-xs font-bold uppercase tracking-wider">Automated Pre-Screening</span>
+            <h2 className="text-3xl font-black text-slate-950">Check Your Donation Readiness</h2>
+            <p className="text-xs sm:text-sm text-slate-500">Verify basic physical parameters before scheduling an emergency hospital donation</p>
+          </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {divisionStats.map((div) => (
-            <div key={div.name} className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-900 text-sm">{div.name}</span>
-                <span className={"text-[10px] font-bold px-2 py-0.5 rounded-full " + (div.status.includes("Critical") ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700")}>
-                  {div.status}
-                </span>
-              </div>
-              <div>
-                <div className="text-2xl font-black text-slate-950">{div.donors}</div>
-                <div className="text-xs text-slate-500">Verified Blood Volunteers</div>
-              </div>
-              <div className="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-600">
-                <span>Immediate Reserve:</span>
-                <span className="font-bold text-slate-900">{div.units}</span>
-              </div>
+          <form onSubmit={handleCheckEligibility} className="grid sm:grid-cols-3 gap-4 pt-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Blood Profile</label>
+              <select
+                value={calcGroup}
+                onChange={(e) => setCalcGroup(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
+              >
+                {bloodGroups.map((bg) => (
+                  <option key={bg.value} value={bg.value}>{bg.label}</option>
+                ))}
+              </select>
             </div>
-          ))}
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Body Weight (kg)</label>
+              <input
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(Number(e.target.value))}
+                min={35}
+                max={150}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Months Since Last Donation</label>
+              <input
+                type="number"
+                value={lastDonationMonths}
+                onChange={(e) => setLastDonationMonths(Number(e.target.value))}
+                min={0}
+                max={24}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-3 pt-2">
+              <button
+                type="submit"
+                className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition"
+              >
+                Run Eligibility Assessment
+              </button>
+            </div>
+          </form>
+
+          {eligibilityResult && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center font-semibold text-sm text-slate-800">
+              {eligibilityResult}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 5. 8 DIVISIONAL COMMAND CENTERS & EMERGENCY HOTLINES */}
+      <section className="bg-white border-t border-slate-200 py-20">
+        <div className="max-w-7xl mx-auto px-4 w-full">
+          <div className="text-center mb-12 space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Regional Coverage</span>
+            <h2 className="text-3xl font-black text-slate-950">8 Divisional Command Centers</h2>
+            <p className="text-slate-500 text-sm">Real-time volunteer networks and direct emergency contacts across Bangladesh</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {divisionStats.map((div) => (
+              <div key={div.name} className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-900 text-sm">{div.name}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <div className="text-2xl font-black text-slate-950">{div.donors}</div>
+                  <div className="text-xs text-slate-500">Verified Blood Volunteers</div>
+                </div>
+                <div className="pt-2 border-t border-slate-200 flex justify-between text-xs text-slate-600">
+                  <span>Immediate Reserve:</span>
+                  <span className="font-bold text-slate-900">{div.units}</span>
+                </div>
+                <a
+                  href={"tel:" + div.hot}
+                  className="block text-center text-xs font-bold bg-white hover:bg-slate-950 hover:text-white text-slate-800 py-2 rounded-xl transition border border-slate-200"
+                >
+                  Hotline: {div.hot}
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -468,8 +621,8 @@ export default function HomePage() {
 }
 `;
 
-// ৩. রিকোয়েস্ট পেজ: সম্পূর্ণ প্রফেশনাল ও কার্যক্ষম
-const requestsCode = `"use client";
+// 4. REQUESTS PAGE
+const requests = `"use client";
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/shared/Navbar";
@@ -575,8 +728,8 @@ export default function RequestsPage() {
 }
 `;
 
-// ৪. সার্ভিস / হসপিটাল নেটওয়ার্ক পেজ
-const servicesCode = `import Navbar from "@/components/shared/Navbar";
+// 5. SERVICES PAGE
+const services = `import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
 export default function ServicesPage() {
@@ -635,8 +788,8 @@ export default function ServicesPage() {
 }
 `;
 
-// ৫. এবাউট / ক্লিনিক্যাল প্রোটোকল পেজ
-const aboutCode = `import Navbar from "@/components/shared/Navbar";
+// 6. ABOUT PAGE
+const about = `import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
 export default function AboutPage() {
@@ -680,8 +833,8 @@ export default function AboutPage() {
 }
 `;
 
-// ৬. কন্টাক্ট ও সাপোর্ট পেজ
-const contactCode = `import Navbar from "@/components/shared/Navbar";
+// 7. CONTACT PAGE
+const contact = `import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
 export default function ContactPage() {
@@ -727,67 +880,18 @@ export default function ContactPage() {
 }
 `;
 
-// ৭. প্রাতিষ্ঠানিক গ্লোবাল ফুটার
-const footerCode = `import Link from "next/link";
+// WRITE ALL FILES
+writeFile("src/components/shared/Navbar.tsx", navbar);
+writeFile("src/components/shared/Footer.tsx", footer);
+writeFile("src/app/page.tsx", home);
+writeFile("src/app/requests/page.tsx", requests);
+writeFile("src/app/services/page.tsx", services);
+writeFile("src/app/about/page.tsx", about);
+writeFile("src/app/contact/page.tsx", contact);
 
-export default function Footer() {
-  return (
-    <footer className="border-t border-slate-200 bg-white text-slate-600 py-12 text-sm mt-auto">
-      <div className="max-w-7xl mx-auto px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="space-y-3">
-          <div className="text-lg font-black text-slate-950">BloodPulse<span className="text-rose-600">Hub</span></div>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Centralized humanitarian registry facilitating rapid, verified blood transfusion logistics across Bangladesh.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Navigation</div>
-          <ul className="space-y-1 text-xs">
-            <li><Link href="/" className="hover:text-rose-600">Overview</Link></li>
-            <li><Link href="/requests" className="hover:text-rose-600">Emergency Requests</Link></li>
-            <li><Link href="/services" className="hover:text-rose-600">Hospital Network</Link></li>
-            <li><Link href="/about" className="hover:text-rose-600">Clinical Standards</Link></li>
-          </ul>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Clinical Portals</div>
-          <ul className="space-y-1 text-xs">
-            <li><Link href="/login" className="hover:text-rose-600">Hospital Staff Login</Link></li>
-            <li><Link href="/register" className="hover:text-rose-600">Donor Registration</Link></li>
-            <li><Link href="/recipient" className="hover:text-rose-600">Patient Emergency Post</Link></li>
-            <li><Link href="/contact" className="hover:text-rose-600">Dispatch Desk</Link></li>
-          </ul>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-bold text-slate-950 uppercase tracking-wider">Emergency Operations</div>
-          <p className="text-xs text-slate-500">24/7 National Dispatch Center</p>
-          <p className="text-sm font-bold text-rose-600">+880 1700-000000</p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 border-t border-slate-100 mt-8 pt-6 text-center text-xs text-slate-400">
-        &copy; 2026 BloodPulse National Transfusion Logistics Network. All rights reserved.
-      </div>
-    </footer>
-  );
-}
-`;
-
-// ফাইলগুলোতে নতুন কোড রাইট করা
-fs.writeFileSync("src/components/shared/Navbar.tsx", navbarCode, "utf8");
-fs.writeFileSync("src/components/shared/Footer.tsx", footerCode, "utf8");
-fs.writeFileSync("src/app/page.tsx", homeCode, "utf8");
-fs.writeFileSync("src/app/requests/page.tsx", requestsCode, "utf8");
-fs.writeFileSync("src/app/services/page.tsx", servicesCode, "utf8");
-fs.writeFileSync("src/app/about/page.tsx", aboutCode, "utf8");
-fs.writeFileSync("src/app/contact/page.tsx", contactCode, "utf8");
-
-// ক্লিনআপ
-["build-ultimate-bmhbd.js", "build-mega-bmhbd.js"].forEach((f) => {
+// CLEANUP
+["upgrade-enterprise.js", "build-ultimate-bmhbd.js", "build-mega-bmhbd.js"].forEach(f => {
   if (fs.existsSync(f)) fs.unlinkSync(f);
 });
 
-console.log("Enterprise-grade UI successfully deployed across all pages!");
+console.log("ALL ENTERPRISE FILES WRITTEN SUCCESSFULLY!");

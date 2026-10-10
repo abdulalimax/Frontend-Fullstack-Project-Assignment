@@ -12,17 +12,15 @@ export default function HomePage() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [requests, setRequests] = useState<BloodRequest[]>([]);
   
-  // ইন্টারেক্টিভ এলিজিবিলিটি ক্যালকুলেটর
   const [calcGroup, setCalcGroup] = useState("O_POSITIVE");
   const [weight, setWeight] = useState(55);
   const [lastDonationMonths, setLastDonationMonths] = useState(4);
   const [eligibilityResult, setEligibilityResult] = useState<string | null>(null);
 
-  // লাইভ ব্লাড কম্প্যাটিবিলিটি সিমুলেটর
-  const [activeMatrixGroup, setActiveMatrixGroup] = useState("O_POSITIVE");
+  const [activeGroupMatrix, setActiveGroupMatrix] = useState("O_POSITIVE");
 
   useEffect(() => {
-    fetchApi<{ data: BloodRequest[] }>("/requests?page=1&limit=8&status=PENDING")
+    fetchApi<{ data: BloodRequest[] }>("/requests?page=1&limit=6&status=PENDING")
       .then((res) => {
         if (res && res.data && Array.isArray(res.data)) {
           setRequests(res.data);
@@ -34,155 +32,122 @@ export default function HomePage() {
   }, []);
 
   const bloodGroups = [
-    { value: "A_POSITIVE", label: "A+ (এ পজিটিভ)" },
-    { value: "A_NEGATIVE", label: "A- (এ নেগেটিভ)" },
-    { value: "B_POSITIVE", label: "B+ (বি পজিটিভ)" },
-    { value: "B_NEGATIVE", label: "B- (বি নেগেটিভ)" },
-    { value: "O_POSITIVE", label: "O+ (ও পজিটিভ)" },
-    { value: "O_NEGATIVE", label: "O- (ও নেগেটিভ)" },
-    { value: "AB_POSITIVE", label: "AB+ (এবি পজিটিভ)" },
-    { value: "AB_NEGATIVE", label: "AB- (এবি নেগেটিভ)" },
+    { value: "A_POSITIVE", label: "A+ (A Positive)" },
+    { value: "A_NEGATIVE", label: "A- (A Negative)" },
+    { value: "B_POSITIVE", label: "B+ (B Positive)" },
+    { value: "B_NEGATIVE", label: "B- (B Negative)" },
+    { value: "O_POSITIVE", label: "O+ (O Positive)" },
+    { value: "O_NEGATIVE", label: "O- (O Negative)" },
+    { value: "AB_POSITIVE", label: "AB+ (AB Positive)" },
+    { value: "AB_NEGATIVE", label: "AB- (AB Negative)" },
   ];
 
   const bangladeshDistricts = [
-    "ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা", "বরিশাল", "সিলেট", "রংপুর", "ময়মনসিংহ",
-    "নেত্রকোণা", "কুমিল্লা", "গাজীপুর", "নারায়ণগঞ্জ", "বগুড়া", "যশোর", "কক্সবাজার",
-    "দিনাজপুর", "টাঙ্গাইল", "ফরিদপুর", "পাবনা", "নোয়াখালী", "কুষ্টিয়া"
+    "Dhaka", "Chattogram", "Rajshahi", "Khulna", "Barishal", "Sylhet", "Rangpur", "Mymensingh",
+    "Netrokona", "Cumilla", "Gazipur", "Narayanganj", "Bogura", "Jashore", "Cox's Bazar"
   ];
 
-  const divisions = [
-    { name: "ঢাকা", donors: "৪,২৫০+", units: "৮৫০ ব্যাগ", hot: "০১৭০০-১১২২৩৩" },
-    { name: "চট্টগ্রাম", donors: "২,১৮০+", units: "৪২০ ব্যাগ", hot: "০১৮০০-১১২২৩৩" },
-    { name: "রাজশাহী", donors: "১,৩৫০+", units: "২৯০ ব্যাগ", hot: "০১৭৫০-১১২২৩৩" },
-    { name: "খুলনা", donors: "১,১০০+", units: "২১০ ব্যাগ", hot: "০১৯০০-১১২২৩৩" },
-    { name: "বরিশাল", donors: "৭২০+", units: "১৬০ ব্যাগ", hot: "০১৭২০-১১২২৩৩" },
-    { name: "সিলেট", donors: "৮৯০+", units: "১৯৫ ব্যাগ", hot: "০১৬০০-১১২২৩৩" },
-    { name: "রংপুর", donors: "৯৪০+", units: "২০৫ ব্যাগ", hot: "০১৭৩০-১১২২৩৩" },
-    { name: "ময়মনসিংহ", donors: "১,০৫০+", units: "২৪০ ব্যাগ", hot: "০১৯৫০-১১২২৩৩" },
+  const divisionStats = [
+    { name: "Dhaka Central", donors: "5,420 Active", units: "920 Units", hot: "+880 1700-112233" },
+    { name: "Chattogram Coast", donors: "2,840 Active", units: "410 Units", hot: "+880 1800-112233" },
+    { name: "Rajshahi North", donors: "1,750 Active", units: "280 Units", hot: "+880 1750-112233" },
+    { name: "Khulna Delta", donors: "1,420 Active", units: "210 Units", hot: "+880 1900-112233" },
+    { name: "Barishal Coastal", donors: "960 Active", units: "140 Units", hot: "+880 1720-112233" },
+    { name: "Sylhet Highlands", donors: "1,120 Active", units: "190 Units", hot: "+880 1600-112233" },
+    { name: "Rangpur North", donors: "1,280 Active", units: "210 Units", hot: "+880 1730-112233" },
+    { name: "Mymensingh Central", donors: "1,390 Active", units: "240 Units", hot: "+880 1950-112233" },
   ];
 
-  const compatibilityData: Record<string, { give: string[]; take: string[]; title: string }> = {
+  const compatibilityMap: Record<string, { canDonateTo: string[]; canReceiveFrom: string[]; tag: string }> = {
     O_NEGATIVE: {
-      title: "O- (সার্বজনীন দাতা / Universal Donor)",
-      give: ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"],
-      take: ["O-"]
+      tag: "Universal Red Cell Donor",
+      canDonateTo: ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"],
+      canReceiveFrom: ["O-"]
     },
     O_POSITIVE: {
-      title: "O+ (সবচেয়ে বেশি প্রয়োজন)",
-      give: ["O+", "A+", "B+", "AB+"],
-      take: ["O+", "O-"]
+      tag: "Highest National Clinical Demand",
+      canDonateTo: ["O+", "A+", "B+", "AB+"],
+      canReceiveFrom: ["O+", "O-"]
     },
     A_POSITIVE: {
-      title: "A+ (বহুল প্রচলিত রক্তের গ্রুপ)",
-      give: ["A+", "AB+"],
-      take: ["A+", "A-", "O+", "O-"]
+      tag: "Common Platelet & Red Cell Type",
+      canDonateTo: ["A+", "AB+"],
+      canReceiveFrom: ["A+", "A-", "O+", "O-"]
     },
     A_NEGATIVE: {
-      title: "A- (জরুরি ও দুর্লভ গ্রুপ)",
-      give: ["A+", "A-", "AB+", "AB-"],
-      take: ["A-", "O-"]
+      tag: "Rare Emergency Blood Type",
+      canDonateTo: ["A+", "A-", "AB+", "AB-"],
+      canReceiveFrom: ["A-", "O-"]
     },
     B_POSITIVE: {
-      title: "B+ (ব্যাপক চাহিদাসম্পন্ন)",
-      give: ["B+", "AB+"],
-      take: ["B+", "B-", "O+", "O-"]
+      tag: "High Trauma & Surgical Demand",
+      canDonateTo: ["B+", "AB+"],
+      canReceiveFrom: ["B+", "B-", "O+", "O-"]
     },
     B_NEGATIVE: {
-      title: "B- (সংকটকালীন দুর্লভ গ্রুপ)",
-      give: ["B+", "B-", "AB+", "AB-"],
-      take: ["B-", "O-"]
+      tag: "High Priority Rare Group",
+      canDonateTo: ["B+", "B-", "AB+", "AB-"],
+      canReceiveFrom: ["B-", "O-"]
     },
     AB_POSITIVE: {
-      title: "AB+ (সার্বজনীন গ্রহীতা / Universal Recipient)",
-      give: ["AB+"],
-      take: ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"]
+      tag: "Universal Recipient / Universal Plasma Donor",
+      canDonateTo: ["AB+"],
+      canReceiveFrom: ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"]
     },
     AB_NEGATIVE: {
-      title: "AB- (বিরল ও বিশেষায়িত গ্রুপ)",
-      give: ["AB+", "AB-"],
-      take: ["AB-", "A-", "B-", "O-"]
+      tag: "Specialized Pediatric Compatibility",
+      canDonateTo: ["AB+", "AB-"],
+      canReceiveFrom: ["AB-", "A-", "B-", "O-"]
     }
   };
-
-  const donationSteps = [
-    {
-      step: "০১",
-      title: "অনলাইন প্রোফাইল নিবন্ধন",
-      desc: "আপনার রক্তের গ্রুপ, বর্তমান জেলা ও শেষ রক্তদানের তথ্য দিয়ে ২ মিনিটে যুক্ত হোন।",
-      icon: "📋"
-    },
-    {
-      step: "০২",
-      title: "মেডিকেল ফিটনেস যাচাই",
-      desc: "স্বয়ংক্রিয় স্বাস্থ্য নীতিমালার মাধ্যমে রক্তদানের ন্যূনতম বিরতি ও ওজন নিশ্চিত করা হয়।",
-      icon: "🩺"
-    },
-    {
-      step: "০৩",
-      title: "জরুরি রক্তের নোটিফিকেশন",
-      desc: "নিকটস্থ হাসপাতাল বা মুমূর্ষু রোগীর রক্তের সাথে ম্যাচ হলে তাৎক্ষণিক অ্যালার্ট পান।",
-      icon: "⚡"
-    },
-    {
-      step: "০৪",
-      title: "জীবন রক্ষায় রক্তদান",
-      desc: "হাসপাতালে সরাসরি রক্ত দিয়ে একজন মানুষের নিশ্চিত মৃত্যু ঝুঁকি থেকে জীবন বাঁচান।",
-      icon: "❤️"
-    }
-  ];
 
   const handleCheckEligibility = (e: React.FormEvent) => {
     e.preventDefault();
     if (weight < 50) {
-      setEligibilityResult("❌ দুঃখিত! রক্তদানের জন্য সর্বনিম্ন ৫০ কেজি ওজন থাকা আবশ্যক।");
+      setEligibilityResult("Ineligible: Clinical guidelines require a minimum donor weight of 50 kg.");
     } else if (lastDonationMonths < 3) {
-      setEligibilityResult("⏳ শেষ রক্তদানের পর কমপক্ষে ৩ মাস (৯০ দিন) সময় পার হতে হবে।");
+      setEligibilityResult("Waiting Period Active: A standard 90-day recovery interval is required between donations.");
     } else {
-      setEligibilityResult("🎉 চমৎকার! আপনি আজই রক্তদান করার জন্য শারীরিকভাবে সম্পূর্ণ উপযুক্ত।");
+      setEligibilityResult("Eligible: You meet baseline physical prerequisites to donate blood safely today.");
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-rose-600 selection:text-white relative">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-rose-600 selection:text-white">
       <Navbar />
 
-      {/* ১. হিরো সেকশন: বিএমএইচবিডি স্টাইল সেন্ট্রাল নেটওয়ার্ক হাব ও অ্যানিমেশন */}
-      <section className="relative overflow-hidden pt-20 pb-28 border-b border-rose-900/40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-950 via-slate-950 to-black">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-rose-600/15 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div className="absolute top-1/3 left-10 w-96 h-96 bg-red-600/10 rounded-full blur-2xl pointer-events-none animate-ping duration-1000"></div>
-
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
+      {/* 1. HERO SECTION */}
+      <section className="border-b border-slate-200 bg-white py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 bg-rose-900/60 border border-rose-500/40 text-rose-300 px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase shadow-lg shadow-rose-950">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                <span>বাংলাদেশ কেন্দ্রীয় ব্লাড ম্যানেজমেন্ট হাব ও মানবিক ইমার্জেন্সি নেটওয়ার্ক</span>
+              <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                Integrated Healthcare & Critical Transfusion Registry
               </div>
 
-              <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.12] text-white">
-                আপনার এক ফোঁটা রক্তে, <br />
-                <span className="bg-gradient-to-r from-rose-400 via-red-500 to-amber-400 bg-clip-text text-transparent">
-                  বাঁচুক একটি মূল্যবান প্রাণ।
-                </span>
+              <h1 className="text-4xl sm:text-6xl font-black text-slate-950 tracking-tight leading-[1.1]">
+                Every Drop Counts. <br />
+                <span className="text-rose-600">Save Lives in Critical Emergencies.</span>
               </h1>
 
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
-                বাংলাদেশে প্রতিদিন রক্তের অভাবে অসংখ্য জীবন সংকটে পড়ে। রক্তদান কোনো কঠিন কাজ নয়, এটি একজন মানুষের সেরা মানবিক উপহার। আজই স্বেচ্ছায় রক্তদানের এই আধুনিক ডিজিটাল প্ল্যাটফর্মে যুক্ত হোন।
+              <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
+                Connecting clinical trauma centers, verified voluntary donors, and emergency recipients through a fault-tolerant national logistics platform.
               </p>
 
-              {/* ফিল্টার ও দ্রুত ডোনার সার্চ বক্স */}
-              <div className="bg-slate-900/90 border border-rose-500/40 p-5 rounded-3xl shadow-2xl backdrop-blur-xl space-y-3">
-                <div className="text-xs font-bold uppercase text-rose-400 tracking-wider flex items-center gap-2">
-                  <span>⚡</span> তাৎক্ষণিক রক্তদাতা ও জরুরি রক্তের ব্যাগ অনুসন্ধান
+              {/* Fast Triage Search Bar */}
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl shadow-sm space-y-3">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Instant Patient Matching Triage
                 </div>
                 <div className="grid sm:grid-cols-3 gap-3">
                   <select
                     value={selectedGroup}
                     onChange={(e) => setSelectedGroup(e.target.value)}
-                    className="border border-slate-700 bg-slate-950 text-white rounded-2xl p-3.5 text-sm font-semibold outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    className="border border-slate-200 bg-white rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-rose-500"
                   >
-                    <option value="">রক্তের গ্রুপ বেছে নিন</option>
+                    <option value="">Blood Group Needed</option>
                     {bloodGroups.map((bg) => (
                       <option key={bg.value} value={bg.value}>{bg.label}</option>
                     ))}
@@ -191,19 +156,19 @@ export default function HomePage() {
                   <select
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
-                    className="border border-slate-700 bg-slate-950 text-white rounded-2xl p-3.5 text-sm font-semibold outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    className="border border-slate-200 bg-white rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-rose-500"
                   >
-                    <option value="">জেলা বেছে নিন</option>
+                    <option value="">Select Division/District</option>
                     {bangladeshDistricts.map((d) => (
                       <option key={d} value={d}>{d}</option>
                     ))}
                   </select>
 
                   <Link
-                    href={selectedGroup ? `/requests?bloodGroup=${selectedGroup}` : "/requests"}
-                    className="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black rounded-2xl p-3.5 text-sm flex items-center justify-center shadow-lg shadow-rose-600/40 transition hover:scale-[1.02]"
+                    href={selectedGroup ? "/requests?bloodGroup=" + selectedGroup : "/requests"}
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl p-3 text-sm flex items-center justify-center transition shadow-sm"
                   >
-                    ডোনার খুঁজুন 🔍
+                    Query Matching Donors
                   </Link>
                 </div>
               </div>
@@ -211,60 +176,53 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link
                   href="/register"
-                  className="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white px-8 py-4 rounded-2xl text-sm font-black shadow-xl shadow-rose-600/40 transition hover:scale-105"
+                  className="bg-slate-950 hover:bg-slate-800 text-white font-bold px-7 py-3.5 rounded-xl text-sm transition"
                 >
-                  রক্তদাতা হিসেবে নিবন্ধন করুন &rarr;
+                  Enroll as Verified Donor
                 </Link>
                 <Link
-                  href="/recipient"
-                  className="bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 px-8 py-4 rounded-2xl text-sm font-bold transition hover:border-slate-500"
+                  href="/requests"
+                  className="bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold px-7 py-3.5 rounded-xl text-sm transition"
                 >
-                  জরুরি রক্তের আবেদন করুন
+                  Browse Emergency Requests
                 </Link>
               </div>
             </div>
 
-            {/* ডানপাশের সেন্ট্রাল নোড ডায়াগ্রাম */}
-            <div className="lg:col-span-5 relative flex items-center justify-center">
-              <div className="w-80 h-80 sm:w-96 sm:h-96 rounded-full border-2 border-dashed border-rose-500/40 relative flex items-center justify-center animate-[spin_50s_linear_infinite]">
-                {divisions.map((div, idx) => {
-                  const angle = (idx * 360) / divisions.length;
-                  const rad = (angle * Math.PI) / 180;
-                  const x = Math.round(145 * Math.cos(rad));
-                  const y = Math.round(145 * Math.sin(rad));
-                  return (
-                    <div
-                      key={div.name}
-                      style={{ transform: `translate(${x}px, ${y}px)` }}
-                      className="absolute w-16 h-16 rounded-2xl bg-slate-900 border border-rose-500/40 shadow-xl flex flex-col items-center justify-center cursor-pointer hover:scale-125 hover:border-rose-400 transition"
-                    >
-                      <span className="text-xs font-black text-white">{div.name}</span>
-                      <span className="text-[9px] font-bold text-rose-400">{div.donors}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="absolute w-44 h-44 rounded-3xl bg-gradient-to-tr from-rose-600 via-red-600 to-rose-700 text-white flex flex-col items-center justify-center shadow-2xl shadow-rose-600/70 border-4 border-slate-950 animate-pulse">
-                <span className="text-4xl">🩸</span>
-                <span className="font-black text-base tracking-wide mt-1">BMHBD HUB</span>
-                <span className="text-[11px] text-rose-200 font-bold uppercase tracking-wider">কেন্দ্রীয় নেটওয়ার্ক</span>
-              </div>
-
-              <div className="absolute -top-4 right-0 bg-slate-900/90 border border-slate-700 p-3 rounded-2xl shadow-xl flex items-center gap-3 backdrop-blur-md">
-                <span className="text-2xl">👥</span>
+            {/* Enterprise Telemetry Panel */}
+            <div className="lg:col-span-5 bg-slate-900 border border-slate-800 text-white p-8 rounded-3xl shadow-xl space-y-6">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-4">
                 <div>
-                  <p className="text-xs font-black text-white">৫০+ সংগঠন</p>
-                  <p className="text-[10px] text-slate-400 font-semibold">সক্রিয়ভাবে যুক্ত</p>
+                  <div className="text-xs uppercase tracking-wider text-slate-400 font-bold">Network Telemetry</div>
+                  <div className="text-lg font-black text-white">National Readiness Index</div>
+                </div>
+                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-bold">
+                  99.8% Online
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="text-3xl font-black text-rose-500">14,280+</div>
+                  <div className="text-xs text-slate-400 font-medium mt-1">Screened Donors</div>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="text-3xl font-black text-white">8,920+</div>
+                  <div className="text-xs text-slate-400 font-medium mt-1">Transfusions Logged</div>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="text-3xl font-black text-emerald-400">&lt; 14 Min</div>
+                  <div className="text-xs text-slate-400 font-medium mt-1">Average Dispatch Match</div>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="text-3xl font-black text-white">64 / 64</div>
+                  <div className="text-xs text-slate-400 font-medium mt-1">Districts Connected</div>
                 </div>
               </div>
 
-              <div className="absolute -bottom-4 left-0 bg-slate-900/90 border border-rose-500/40 p-3 rounded-2xl shadow-xl flex items-center gap-3 backdrop-blur-md">
-                <span className="text-2xl">❤️</span>
-                <div>
-                  <p className="text-xs font-black text-rose-400">১২,৪৫০+ ডোনার</p>
-                  <p className="text-[10px] text-slate-400 font-semibold">প্রস্তুত আছেন</p>
-                </div>
+              <div className="border-t border-slate-800 pt-4 flex items-center justify-between text-xs text-slate-400">
+                <span>Central Logistics Server: Verified</span>
+                <span className="text-rose-400 font-bold">Priority: O-, B-</span>
               </div>
             </div>
 
@@ -272,127 +230,100 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ২. জাতীয় ইমপ্যাক্ট মেট্রিক্স বার */}
-      <section className="bg-slate-900 border-b border-slate-800 py-10">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="border-r border-slate-800 last:border-none space-y-1">
-            <h3 className="text-4xl sm:text-5xl font-black text-rose-500">২,৪৮০+</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">জীবন রক্ষা প্রাপ্ত</p>
-          </div>
-          <div className="border-r border-slate-800 last:border-none space-y-1">
-            <h3 className="text-4xl sm:text-5xl font-black text-white">১২,৪৫০+</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">নিবন্ধিত রক্তদাতা</p>
-          </div>
-          <div className="border-r border-slate-800 last:border-none space-y-1">
-            <h3 className="text-4xl sm:text-5xl font-black text-rose-500">৬৪</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">জেলায় কার্যক্রম</p>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-4xl sm:text-5xl font-black text-emerald-400">২৪/৭</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">জরুরি হটলাইন সেবা</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ৩. লাইভ জরুরি রক্তের রিকোয়েস্ট ফিড */}
-      <section className="max-w-7xl mx-auto px-4 py-20 w-full">
+      {/* 2. LIVE HOSPITAL EMERGENCY QUEUE */}
+      <section className="py-20 max-w-7xl mx-auto px-4 w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 text-rose-400 font-extrabold uppercase tracking-wider text-xs bg-rose-950/60 border border-rose-800 px-3 py-1 rounded-lg">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> লাইভ জরুরি রক্তের আবেদন
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white mt-2">বর্তমানে জরুরি রক্ত প্রয়োজন</h2>
-            <p className="text-slate-400 text-sm mt-1">হাসপাতাল ও রোগীর স্বজনদের দেওয়া সরাসরি জরুরি তালিকা</p>
+            <div className="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Critical Care Dispatch</div>
+            <h2 className="text-3xl font-black text-slate-950">Immediate Patient Requests</h2>
+            <p className="text-slate-500 text-sm mt-1">Verified hospital submissions waiting for donor dispatch</p>
           </div>
-          <Link href="/requests" className="text-sm font-bold text-rose-400 hover:text-rose-300 bg-rose-950/50 border border-rose-800 px-5 py-2.5 rounded-xl transition">
-            সকল উন্মুক্ত আবেদন দেখুন &rarr;
+          <Link href="/requests" className="text-sm font-bold text-rose-600 hover:underline">
+            View Complete National Queue &rarr;
           </Link>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {requests.length > 0 ? (
             requests.map((r) => (
-              <div key={r.id} className="bg-slate-900 border border-slate-800 hover:border-rose-500 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-rose-950/50 transition-all duration-300 flex flex-col justify-between group">
+              <div key={r.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-2xl font-black text-rose-400 bg-rose-950 border border-rose-800 px-3.5 py-1 rounded-2xl group-hover:scale-105 transition">
+                    <span className="text-2xl font-black text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1 rounded-xl">
                       {(r.bloodGroup || "O+").replace("_POSITIVE", "+").replace("_NEGATIVE", "-")}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-300 bg-rose-900/60 px-2.5 py-1 rounded-full border border-rose-700">
-                      {r.emergencyLevel}
+                    <span className="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full">
+                      {r.emergencyLevel || "URGENT"}
                     </span>
                   </div>
-                  <h3 className="font-extrabold text-white text-lg leading-snug">{r.hospitalName}</h3>
-                  <p className="text-xs font-semibold text-slate-400 mt-2 flex items-center gap-1">
-                    📍 {r.hospitalAddress}
-                  </p>
+                  <h3 className="font-bold text-slate-900 text-base">{r.hospitalName}</h3>
+                  <p className="text-xs text-slate-500 mt-1">Location: {r.hospitalAddress}</p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-300">প্রয়োজন: {r.unitsNeeded} ব্যাগ</span>
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-600">Requirement: {r.unitsNeeded} Unit(s)</span>
                   <a
-                    href={"tel:" + (r.contactNumber || "01700000000")}
-                    className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1 shadow-md shadow-rose-600/30"
+                    href={"tel:" + (r.contactNumber || "+8801700000000")}
+                    className="bg-slate-950 hover:bg-rose-600 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition"
                   >
-                    কল দিন 📞
+                    Direct Contact
                   </a>
                 </div>
               </div>
             ))
           ) : (
-            <div className="col-span-full py-16 text-center bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
-              <span className="text-4xl">📡</span>
-              <p className="text-slate-400 font-bold text-sm">কেন্দ্রীয় ডাটাবেজ থেকে রিয়েল-টাইম তথ্য লোড হচ্ছে...</p>
+            <div className="col-span-full py-16 text-center bg-white border border-slate-200 rounded-2xl">
+              <p className="text-slate-500 text-sm font-medium">Synchronizing live patient registry with production API...</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* ৪. লাইভ ইন্টারেক্টিভ ব্লাড সামঞ্জস্যতা সিমুলেটর */}
-      <section className="bg-slate-900/80 border-y border-slate-800 py-20">
-        <div className="max-w-5xl mx-auto px-4 space-y-10">
-          <div className="text-center space-y-3">
-            <span className="text-rose-400 text-xs font-extrabold uppercase tracking-widest bg-rose-950 px-3.5 py-1 rounded-full border border-rose-800">
-              ইন্টারেক্টিভ মেডিকেল টুল
+      {/* 3. INTERACTIVE CLINICAL COMPATIBILITY SIMULATOR */}
+      <section className="bg-white border-y border-slate-200 py-20">
+        <div className="max-w-5xl mx-auto px-4 space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+              WHO Transfusion Standards
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white">রক্তের গ্রুপের সামঞ্জস্যতা সিমুলেটর</h2>
-            <p className="text-sm text-slate-400">নিচের যেকোনো রক্ত গ্রুপে ক্লিক করে দেখুন কারা এই রক্ত নিতে ও দিতে পারে</p>
+            <h2 className="text-3xl font-black text-slate-950">Clinical Compatibility Matrix</h2>
+            <p className="text-slate-500 text-sm">Select any blood profile to inspect bidirectional compatibility rules</p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {Object.keys(compatibilityData).map((k) => (
+          <div className="flex flex-wrap justify-center gap-2">
+            {Object.keys(compatibilityMap).map((k) => (
               <button
                 key={k}
-                onClick={() => setActiveMatrixGroup(k)}
-                className={"px-5 py-2.5 rounded-2xl text-xs font-black transition " + (activeMatrixGroup === k ? "bg-rose-600 text-white shadow-lg shadow-rose-600/40 scale-105" : "bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-600")}
+                onClick={() => setActiveGroupMatrix(k)}
+                className={"px-4 py-2 rounded-xl text-xs font-bold transition " + (activeGroupMatrix === k ? "bg-slate-950 text-white shadow-md" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}
               >
                 {k.replace("_POSITIVE", "+").replace("_NEGATIVE", "-")}
               </button>
             ))}
           </div>
 
-          <div className="bg-slate-950 border border-slate-800 p-8 rounded-3xl grid sm:grid-cols-2 gap-8 shadow-2xl">
-            <div className="space-y-4">
-              <div className="text-xs font-bold text-rose-400 uppercase tracking-widest">রক্তদাতা হিসেবে</div>
-              <h3 className="text-2xl font-black text-white">{compatibilityData[activeMatrixGroup]?.title}</h3>
-              <p className="text-sm text-slate-400">এই গ্রুপের ব্যক্তিরা নিম্নলিখিত গ্রুপের রোগীদের রক্ত দিতে পারবেন:</p>
+          <div className="bg-slate-50 border border-slate-200 p-8 rounded-2xl grid md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <div className="text-xs font-bold text-rose-600 uppercase tracking-wider">Eligible Recipients</div>
+              <div className="text-lg font-black text-slate-950">{compatibilityMap[activeGroupMatrix]?.tag}</div>
+              <p className="text-xs text-slate-600">Can safely donate red blood cells to patients with blood groups:</p>
               <div className="flex flex-wrap gap-2 pt-2">
-                {compatibilityData[activeMatrixGroup]?.give.map((grp) => (
-                  <span key={grp} className="bg-emerald-950 border border-emerald-700 text-emerald-300 font-black px-4 py-1.5 rounded-xl text-sm">
-                    {grp}
+                {compatibilityMap[activeGroupMatrix]?.canDonateTo.map((g) => (
+                  <span key={g} className="bg-white border border-slate-300 text-slate-900 font-bold px-3 py-1 rounded-lg text-xs">
+                    {g}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-4 sm:border-l sm:border-slate-800 sm:pl-8">
-              <div className="text-xs font-bold text-amber-400 uppercase tracking-widest">রক্তগ্রহীতা হিসেবে</div>
-              <h3 className="text-2xl font-black text-white">যাদের থেকে রক্ত গ্রহণ করতে পারবেন</h3>
-              <p className="text-sm text-slate-400">জরুরি প্রয়োজনে এই গ্রুপের ব্যক্তিরা নিচের ডোনারদের রক্ত গ্রহণ করবেন:</p>
+            <div className="space-y-3 md:border-l md:border-slate-200 md:pl-8">
+              <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Permissible Donors</div>
+              <div className="text-lg font-black text-slate-950">Transfusion Sourcing</div>
+              <p className="text-xs text-slate-600">Can safely receive red blood cells from verified donors with blood groups:</p>
               <div className="flex flex-wrap gap-2 pt-2">
-                {compatibilityData[activeMatrixGroup]?.take.map((grp) => (
-                  <span key={grp} className="bg-rose-950 border border-rose-700 text-rose-300 font-black px-4 py-1.5 rounded-xl text-sm">
-                    {grp}
+                {compatibilityMap[activeGroupMatrix]?.canReceiveFrom.map((g) => (
+                  <span key={g} className="bg-white border border-slate-300 text-slate-900 font-bold px-3 py-1 rounded-lg text-xs">
+                    {g}
                   </span>
                 ))}
               </div>
@@ -401,22 +332,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ৫. ইন্টারেক্টিভ ডোনেশন এলিজিবিলিটি ক্যালকুলেটর */}
+      {/* 4. DONOR ELIGIBILITY HEALTH CHECKER */}
       <section className="max-w-4xl mx-auto px-4 py-20 w-full">
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-rose-500/30 p-8 sm:p-12 rounded-3xl shadow-2xl space-y-6">
+        <div className="bg-white border border-slate-200 p-8 sm:p-12 rounded-3xl shadow-sm space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-rose-400 text-xs font-bold uppercase tracking-widest">স্বয়ংক্রিয় স্বাস্থ্য পরীক্ষা</span>
-            <h2 className="text-3xl font-black text-white">আপনি কি আজ রক্তদান করতে পারবেন?</h2>
-            <p className="text-xs sm:text-sm text-slate-400">নিচের তথ্যগুলো দিয়ে সাথে সাথে জেনে নিন আপনি রক্তদানের জন্য প্রস্তুত কি না</p>
+            <span className="text-rose-600 text-xs font-bold uppercase tracking-wider">Automated Pre-Screening</span>
+            <h2 className="text-3xl font-black text-slate-950">Check Your Donation Readiness</h2>
+            <p className="text-xs sm:text-sm text-slate-500">Verify basic physical parameters before scheduling an emergency hospital donation</p>
           </div>
 
           <form onSubmit={handleCheckEligibility} className="grid sm:grid-cols-3 gap-4 pt-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-300">রক্তের গ্রুপ</label>
+              <label className="text-xs font-bold text-slate-700">Blood Profile</label>
               <select
                 value={calcGroup}
                 onChange={(e) => setCalcGroup(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-rose-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
               >
                 {bloodGroups.map((bg) => (
                   <option key={bg.value} value={bg.value}>{bg.label}</option>
@@ -425,189 +356,81 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-300">ওজন (কেজি)</label>
+              <label className="text-xs font-bold text-slate-700">Body Weight (kg)</label>
               <input
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
                 min={35}
                 max={150}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-rose-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-300">শেষ রক্তদানের ব্যবধান (মাস)</label>
+              <label className="text-xs font-bold text-slate-700">Months Since Last Donation</label>
               <input
                 type="number"
                 value={lastDonationMonths}
                 onChange={(e) => setLastDonationMonths(Number(e.target.value))}
                 min={0}
                 max={24}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-rose-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 outline-none"
               />
             </div>
 
             <div className="sm:col-span-3 pt-2">
               <button
                 type="submit"
-                className="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-rose-600/30"
+                className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition"
               >
-                উপযুক্ততা যাচাই করুন ⚡
+                Run Eligibility Assessment
               </button>
             </div>
           </form>
 
           {eligibilityResult && (
-            <div className="p-4 rounded-2xl bg-slate-950 border border-rose-500/40 text-center font-bold text-sm text-white animate-bounce">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center font-semibold text-sm text-slate-800">
               {eligibilityResult}
             </div>
           )}
         </div>
       </section>
 
-      {/* ৬. ৮টি বিভাগের জরুরি হটলাইন ও নেটওয়ার্ক */}
-      <section className="bg-slate-900/60 border-y border-slate-800 py-20">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* 5. 8 DIVISIONAL COMMAND CENTERS & EMERGENCY HOTLINES */}
+      <section className="bg-white border-t border-slate-200 py-20">
+        <div className="max-w-7xl mx-auto px-4 w-full">
           <div className="text-center mb-12 space-y-2">
-            <span className="text-rose-400 text-xs font-extrabold uppercase tracking-widest bg-rose-950 px-3.5 py-1 rounded-full border border-rose-800">
-              বিভাগীয় হটলাইন ডিরেক্টরি
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white">৮ বিভাগের ব্লাড ব্যাংক ও জরুরি হটলাইন</h2>
-            <p className="text-sm text-slate-400 max-w-xl mx-auto">
-              জরুরি মুহূর্তে যেকোনো বিভাগের রক্তদাতা ও অ্যাম্বুলেন্স সহায়তার জন্য সরাসরি যোগাযোগ করুন।
-            </p>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Regional Coverage</span>
+            <h2 className="text-3xl font-black text-slate-950">8 Divisional Command Centers</h2>
+            <p className="text-slate-500 text-sm">Real-time volunteer networks and direct emergency contacts across Bangladesh</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {divisions.map((div) => (
-              <div key={div.name} className="bg-slate-950 border border-slate-800 hover:border-slate-700 p-6 rounded-3xl space-y-4 transition">
+            {divisionStats.map((div) => (
+              <div key={div.name} className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-black text-white">{div.name} বিভাগ</span>
-                  <span className="text-xs font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full">
-                    সক্রিয়
+                  <span className="font-bold text-slate-900 text-sm">{div.name}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    Active
                   </span>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-2xl font-black text-rose-500">{div.donors}</div>
-                  <div className="text-xs text-slate-400 font-semibold">নিবন্ধিত রক্তদাতা</div>
+                <div>
+                  <div className="text-2xl font-black text-slate-950">{div.donors}</div>
+                  <div className="text-xs text-slate-500">Verified Blood Volunteers</div>
                 </div>
-                <div className="pt-2 border-t border-slate-900 flex justify-between text-xs font-bold text-slate-300">
-                  <span>সংরক্ষিত সক্ষমতা:</span>
-                  <span className="text-white">{div.units}</span>
+                <div className="pt-2 border-t border-slate-200 flex justify-between text-xs text-slate-600">
+                  <span>Immediate Reserve:</span>
+                  <span className="font-bold text-slate-900">{div.units}</span>
                 </div>
                 <a
                   href={"tel:" + div.hot}
-                  className="block text-center text-xs font-bold bg-slate-900 hover:bg-rose-600 text-slate-200 hover:text-white py-2.5 rounded-xl transition border border-slate-800"
+                  className="block text-center text-xs font-bold bg-white hover:bg-slate-950 hover:text-white text-slate-800 py-2 rounded-xl transition border border-slate-200"
                 >
-                  হটলাইন: {div.hot} 📞
+                  Hotline: {div.hot}
                 </a>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ৭. রক্তদানের ৪টি সহজ ধাপ */}
-      <section className="max-w-7xl mx-auto px-4 py-20 w-full">
-        <div className="text-center mb-14 space-y-3">
-          <span className="text-rose-400 text-xs font-extrabold uppercase tracking-widest bg-rose-950 px-3.5 py-1 rounded-full border border-rose-800">
-            রক্তদান প্রক্রিয়া
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">৪টি সহজ ধাপে জীবন বাঁচান</h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto">
-            নিবন্ধন থেকে শুরু করে রক্তদান পর্যন্ত সম্পূর্ণ স্বচ্ছ ও নিরাপদ ডিজিটাল ব্যবস্থাপনা।
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {donationSteps.map((step) => (
-            <div key={step.step} className="bg-slate-900 border border-slate-800 p-6 rounded-3xl relative space-y-4 hover:border-rose-500/50 transition">
-              <div className="flex justify-between items-center">
-                <span className="text-4xl">{step.icon}</span>
-                <span className="text-2xl font-black text-slate-800 font-mono">{step.step}</span>
-              </div>
-              <h3 className="text-lg font-bold text-white">{step.title}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ৮. রক্তদান সংক্রান্ত বিজ্ঞানসম্মত সত্য ও ভুল ধারণা */}
-      <section className="max-w-6xl mx-auto px-4 py-20 w-full">
-        <div className="text-center mb-14 space-y-3">
-          <span className="text-rose-400 text-xs font-extrabold uppercase tracking-widest bg-rose-950 px-3.5 py-1 rounded-full border border-rose-800">
-            বিজ্ঞানসম্মত সত্য
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">রক্তদান সংক্রান্ত ভুল ধারণা বনাম সত্য</h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto">
-            ভুল ধারণা দূর করুন, সুস্থ মানুষ হিসেবে নিয়মতান্ত্রিক রক্তদানে নির্ভয়ে অংশ নিন।
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-6">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-              <span>❌ ভুল ধারণা:</span> <span>রক্ত দিলে শরীর স্থায়ীভাবে দুর্বল হয়ে যায়।</span>
-            </div>
-            <div className="flex items-start gap-2 text-emerald-400 font-bold text-sm pt-2 border-t border-slate-800">
-              <span>✅ বৈজ্ঞানিক সত্য:</span> <span className="text-slate-300 font-normal">রক্তদানের মাত্র ৪৮ ঘণ্টার মধ্যে শরীর নতুন প্লাজমা তৈরি করে শূন্যতা পূরণ করে।</span>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-              <span>❌ ভুল ধারণা:</span> <span>বছরে কেবল একবার রক্তদান করা নিরাপদ।</span>
-            </div>
-            <div className="flex items-start gap-2 text-emerald-400 font-bold text-sm pt-2 border-t border-slate-800">
-              <span>✅ বৈজ্ঞানিক সত্য:</span> <span className="text-slate-300 font-normal">যেকোনো প্রাপ্তবয়স্ক সুস্থ মানুষ প্রতি ৩ থেকে ৪ মাস পর পর নিরাপদে রক্তদান করতে পারেন।</span>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-              <span>❌ ভুল ধারণা:</span> <span>রক্তদানে মারাত্মক রক্তস্বল্পতা তৈরি হতে পারে।</span>
-            </div>
-            <div className="flex items-start gap-2 text-emerald-400 font-bold text-sm pt-2 border-t border-slate-800">
-              <span>✅ বৈজ্ঞানিক সত্য:</span> <span className="text-slate-300 font-normal">রক্তদানের পূর্বে হিমোগ্লোবিন পরীক্ষা করা হয়, উপযুক্ত ব্যক্তি ছাড়া রক্ত গ্রহণ করা হয় না।</span>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-              <span>❌ ভুল ধারণা:</span> <span>রক্ত দিলে বিভিন্ন সংক্রামক রোগে আক্রান্ত হওয়ার ভয় থাকে।</span>
-            </div>
-            <div className="flex items-start gap-2 text-emerald-400 font-bold text-sm pt-2 border-t border-slate-800">
-              <span>✅ বৈজ্ঞানিক সত্য:</span> <span className="text-slate-300 font-normal">প্রতিটি ডোনেশনে সম্পূর্ণ নতুন, ডিসপোজেবল ও জীবাণুমুক্ত সুঁই এবং কিট ব্যবহার করা হয়।</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ৯. মোটিভেশনাল কল-টু-অ্যাকশন ব্যানার */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-rose-950 via-red-950 to-slate-950 border-t border-rose-900/40 py-24 px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-          <h2 className="text-3xl sm:text-5xl font-black text-white">
-            আপনার জীবনের ১ ঘণ্টা সময়, <br />
-            <span className="text-rose-400">একটি পরিবারের আজীবনের নির্ভরতা।</span>
-          </h2>
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
-            দেশের হাজারো স্বেচ্ছাসেবী রক্তদাতার দলে যোগ দিন। আজই রক্তদাতা হিসেবে আপনার নাম ও রক্তের গ্রুপ নিবন্ধন করে পাশে থাকুন।
-          </p>
-          <div className="pt-4 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/register"
-              className="bg-rose-600 hover:bg-rose-500 text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-rose-600/40 transition hover:scale-105"
-            >
-              স্বেচ্ছাসেবী রক্তদাতা হিসেবে নিবন্ধন করুন &rarr;
-            </Link>
-            <Link
-              href="/contact"
-              className="bg-slate-900/90 hover:bg-slate-800 text-white border border-slate-700 font-bold px-8 py-4 rounded-2xl transition"
-            >
-              জরুরি হটলাইনে যোগাযোগ
-            </Link>
           </div>
         </div>
       </section>
