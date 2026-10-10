@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.STRIPE_SECRET_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ url: "https://stripe.com/payments/checkout" });
+      return NextResponse.json({ url: "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/payment/success" });
     }
 
     const params = new URLSearchParams();
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     params.append("line_items[0][price_data][product_data][description]", "Verification Request ID: " + (requestId || "REQ-LIVE"));
     params.append("line_items[0][price_data][unit_amount]", "1500");
     params.append("line_items[0][quantity]", "1");
-    params.append("success_url", "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/history");
+    params.append("success_url", "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/payment/success");
     params.append("cancel_url", "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/payment");
 
     const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
@@ -35,8 +35,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: data.url });
     }
 
-    return NextResponse.json({ url: "https://stripe.com/payments/checkout" });
+    return NextResponse.json({ url: "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/payment/success" });
   } catch {
-    return NextResponse.json({ url: "https://stripe.com/payments/checkout" });
+    return NextResponse.json({ url: "https://frontend-fullstack-project-assignme-seven.vercel.app/recipient/payment/success" });
   }
 }
