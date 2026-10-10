@@ -10,16 +10,27 @@ export default function PaymentInitiatePage() {
   const requestId = searchParams.get("requestId") || "REQ-EMERGENCY-2026";
   const [loading, setLoading] = useState(false);
 
-  // অফিশিয়াল Stripe Hosted Checkout ডোমেন
-  const handleStripeRedirect = () => {
+  const handlePay = async () => {
     try {
       setLoading(true);
-      toast.success("Redirecting to Stripe Official Checkout Window...");
+      toast.info("Generating secure Stripe Checkout session...");
       
-      // অফিশিয়াল টেস্ট চেকআউট উইন্ডোতে রিডাইরেক্ট
-      window.location.href = "https://buy.stripe.com/test_6oEbJ396U2gK95C7ss";
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId }),
+      });
+      const data = await res.json();
+
+      if (data.url) {
+        toast.success("Redirecting to official Stripe window...");
+        window.location.href = data.url;
+      } else {
+        window.location.href = "https://checkout.stripe.com";
+      }
     } catch {
-      toast.error("Could not open Stripe window");
+      window.location.href = "https://checkout.stripe.com";
+    } finally {
       setLoading(false);
     }
   };
@@ -43,12 +54,12 @@ export default function PaymentInitiatePage() {
           <p className="text-sm font-mono font-medium text-slate-700">{requestId}</p>
           <p className="text-4xl font-extrabold text-slate-900 mt-2">$15.00</p>
           <span className="inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-            Stripe Hosted Mode
+            Stripe Official Checkout
           </span>
         </div>
 
         <button
-          onClick={handleStripeRedirect}
+          onClick={handlePay}
           disabled={loading}
           className="w-full bg-[#635BFF] hover:bg-[#534be8] text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
         >
