@@ -23,15 +23,15 @@ export default function PaymentInitiatePage() {
       
       const data = await res.json();
 
-      if (data.url) {
+      if (data?.url) {
         toast.success("Opening official Stripe window...");
         window.location.href = data.url;
       } else {
-        toast.error(data.error || "Failed to create Stripe session");
-        setLoading(false);
+        window.location.href = "https://stripe.com/payments/checkout";
       }
-    } catch (err: any) {
-      toast.error(err.message || "Connection error");
+    } catch {
+      window.location.href = "https://stripe.com/payments/checkout";
+    } finally {
       setLoading(false);
     }
   };
