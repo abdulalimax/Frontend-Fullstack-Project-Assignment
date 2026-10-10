@@ -13,24 +13,25 @@ export default function PaymentInitiatePage() {
   const handlePay = async () => {
     try {
       setLoading(true);
-      toast.info("Generating secure Stripe Checkout session...");
-      
+      toast.info("Connecting to official Stripe gateway...");
+
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId }),
       });
+      
       const data = await res.json();
 
       if (data.url) {
-        toast.success("Redirecting to official Stripe window...");
+        toast.success("Opening official Stripe window...");
         window.location.href = data.url;
       } else {
-        window.location.href = "https://checkout.stripe.com";
+        toast.error(data.error || "Failed to create Stripe session");
+        setLoading(false);
       }
-    } catch {
-      window.location.href = "https://checkout.stripe.com";
-    } finally {
+    } catch (err: any) {
+      toast.error(err.message || "Connection error");
       setLoading(false);
     }
   };
@@ -54,7 +55,7 @@ export default function PaymentInitiatePage() {
           <p className="text-sm font-mono font-medium text-slate-700">{requestId}</p>
           <p className="text-4xl font-extrabold text-slate-900 mt-2">$15.00</p>
           <span className="inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-            Stripe Official Checkout
+            Official Stripe Checkout
           </span>
         </div>
 
