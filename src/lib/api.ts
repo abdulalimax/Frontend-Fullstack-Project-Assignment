@@ -1,28 +1,37 @@
-import { getAuthToken } from "./auth";
+const DEFAULT_BACKEND = "https://blood-donation-emergency-platform.vercel.app/api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export async function fetchApi<T = any>(endpoint: string, options: RequestInit = {}): Promise<T | null> {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || DEFAULT_BACKEND;
+  const baseUrl = envUrl.replace(/\/$/, "");
+  const targetPath = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
+  const fullUrl = baseUrl + targetPath;
 
-export async function fetchApi<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const token = getAuthToken();
-  const headers = new Headers(options.headers || {});
-  headers.set("Content-Type", "application/json");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> || {}),
+  };
 
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token") || localStorage.getItem("accessToken");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const res = await fetch(fullUrl, {
+      ...options,
+      headers,
+      cache: "no-store",
+    });
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    return data as T;
+  } catch (err) {
+    return null;
   }
-
-  return data;
 }

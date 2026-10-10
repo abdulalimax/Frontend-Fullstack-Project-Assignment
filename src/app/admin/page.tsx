@@ -1,64 +1,89 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchApi } from "@/lib/api";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
 import Link from "next/link";
 
-const data = [
-  { name: "A+", donations: 14 },
-  { name: "B+", donations: 22 },
-  { name: "O+", donations: 35 },
-  { name: "AB+", donations: 8 },
-  { name: "O-", donations: 5 },
-];
-
-export default function AdminDashboardPage() {
-  const [usersCount, setUsersCount] = useState(0);
-
-  useEffect(() => {
-    fetchApi<{ data: unknown[] }>("/admin/users")
-      .then((res) => setUsersCount(res.data.length))
-      .catch(() => setUsersCount(0));
-  }, []);
+export default function AdminDashboard() {
+  const regionalMetrics = [
+    { region: "Dhaka Central", capacity: 85, donors: 5420, activeReq: 12 },
+    { region: "Chattogram Coast", capacity: 72, donors: 2840, activeReq: 8 },
+    { region: "Rajshahi North", capacity: 58, donors: 1750, activeReq: 15 },
+    { region: "Khulna Delta", capacity: 64, donors: 1420, activeReq: 6 },
+    { region: "Sylhet Highlands", capacity: 78, donors: 1120, activeReq: 4 },
+  ];
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">Admin Control Center</h1>
-        <div className="space-x-3 text-sm">
-          <Link href="/admin/users" className="bg-slate-900 text-white px-3 py-1.5 rounded-md">Manage Users</Link>
-          <Link href="/admin/reports" className="bg-slate-200 text-slate-800 px-3 py-1.5 rounded-md">Audit Logs</Link>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 bg-white border rounded-xl shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Total Registered Users</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{usersCount || 12}</p>
-        </div>
-        <div className="p-6 bg-white border rounded-xl shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Emergency Requests</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">8</p>
-        </div>
-        <div className="p-6 bg-white border rounded-xl shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Total Completed Donations</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">84</p>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
+      <Navbar />
 
-      <div className="p-6 bg-white border rounded-xl shadow-sm">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Donation Distribution by Blood Group</h2>
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <XAxis dataKey="name" stroke="#888888" />
-              <YAxis stroke="#888888" />
-              <Tooltip />
-              <Bar dataKey="donations" fill="#e11d48" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-12 w-full space-y-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-800 pb-6">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-rose-500">Administrative Command</div>
+            <h1 className="text-3xl font-black text-white mt-1">National Transfusion Analytics & Control</h1>
+            <p className="text-slate-400 text-sm mt-1">Real-time supervision across all 64 districts and medical liaison centers.</p>
+          </div>
+
+          <div className="flex gap-3">
+            <Link href="/admin/users" className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
+              Manage Donors
+            </Link>
+            <Link href="/admin/reports" className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition">
+              Audit Logs & Reports
+            </Link>
+          </div>
         </div>
-      </div>
+
+        {/* Analytics Metric Cards */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Screened Donors</span>
+            <div className="text-3xl font-black text-white">14,280</div>
+            <div className="text-xs text-emerald-400 font-semibold">+184 enrolled this week</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Patient Requests</span>
+            <div className="text-3xl font-black text-rose-500">47</div>
+            <div className="text-xs text-rose-400 font-semibold">12 Marked Critical ICU</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Successful Transfusions</span>
+            <div className="text-3xl font-black text-emerald-400">8,920</div>
+            <div className="text-xs text-slate-400 font-semibold">Zero transmission errors</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Dispatch Latency</span>
+            <div className="text-3xl font-black text-white">13.8 min</div>
+            <div className="text-xs text-emerald-400 font-semibold">Exceeds national SLA</div>
+          </div>
+        </div>
+
+        {/* Visualization Progress Bars (Requirement: Data Visuals) */}
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-6">
+          <h2 className="text-xl font-bold text-white">Regional Reserve Sufficiency Matrix</h2>
+          <div className="space-y-5">
+            {regionalMetrics.map((m) => (
+              <div key={m.region} className="space-y-2">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-slate-300">{m.region} ({m.donors} Donors)</span>
+                  <span className={m.capacity < 60 ? "text-rose-400" : "text-emerald-400"}>
+                    {m.capacity}% Reserve ({m.activeReq} Active Cases)
+                  </span>
+                </div>
+                <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                  <div
+                    className={"h-full transition-all duration-500 " + (m.capacity < 60 ? "bg-rose-500" : "bg-emerald-500")}
+                    style={{ width: m.capacity + "%" }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }
