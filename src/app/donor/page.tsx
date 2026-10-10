@@ -141,7 +141,7 @@ export default function DonorDashboardPage() {
                     </span>
                     <Link
                       href={`/requests/${req.id}`}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 hover:text-red-700 text-white transition-colors"
                     >
                       Respond
                     </Link>
