@@ -1,7 +1,8 @@
-﻿import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import AIChatWidget from "@/components/shared/AIChatWidget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,7 +10,6 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
 };
 
 export const metadata: Metadata = {
@@ -28,6 +28,7 @@ export default function RootLayout({
         <div className="relative flex min-h-screen flex-col overflow-x-hidden">
           {children}
         </div>
+        <AIChatWidget />
         <Toaster richColors position="top-right" />
       </body>
     </html>
